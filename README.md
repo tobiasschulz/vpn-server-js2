@@ -7,8 +7,8 @@ Fehlende Dateien:
 
   Syntax:
 ```
-# client        server  secret                  IP addresses
-USER        pptpd   PASSWORD        *
+# client   server    secret         IP addresses
+USER       pptpd     PASSWORD       *
 ```
 
 * etc/openvpn/easy-rsa2/keys/*
