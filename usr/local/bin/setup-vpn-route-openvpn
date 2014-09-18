@@ -1,0 +1,17 @@
+#!/bin/bash
+
+iptables-delete-all
+
+IPTABLES='/sbin/iptables'
+EXTIF='p2p1'
+INTIF='tap+'
+
+$IPTABLES -F
+$IPTABLES -X
+
+$IPTABLES -t nat -A POSTROUTING -s 10.8.0.0/24 -o $EXTIF -j MASQUERADE
+$IPTABLES -A FORWARD -i $INTIF -o $EXTIF -m state --state NEW,ESTABLISHED -j ACCEPT
+
+iptables -A OUTPUT -o $INTIF -j ACCEPT
+
+iptables -o p2p1 -A FORWARD -p tcp --tcp-flags SYN,RST SYN -m tcpmss --mss 800:1536 -j TCPMSS --clamp-mss-to-pmtu
