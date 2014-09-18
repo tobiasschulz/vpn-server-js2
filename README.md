@@ -5,7 +5,7 @@ Fehlende Dateien:
 
 * etc/ppp/chap-secrets 
 
-Syntax:
+  Syntax:
 ```
 # client        server  secret                  IP addresses
 USER        pptpd   PASSWORD        *
