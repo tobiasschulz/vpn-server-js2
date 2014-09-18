@@ -1,0 +1,41 @@
+#!/bin/bash
+
+iptables-delete-all
+
+IPTABLES='/sbin/iptables'
+EXTIF='p2p1'
+INTIF='ppp+'
+
+$IPTABLES -F
+$IPTABLES -X
+
+$IPTABLES -t nat -A POSTROUTING -s 10.0.0.0/24 -o $EXTIF -j MASQUERADE
+$IPTABLES -A FORWARD -i $INTIF -o $EXTIF -m state --state NEW,ESTABLISHED -j ACCEPT
+
+iptables -A OUTPUT -o ppp0 -j ACCEPT
+
+iptables -o p2p1 -A FORWARD -p tcp --tcp-flags SYN,RST SYN -m tcpmss --mss 800:1536 -j TCPMSS --clamp-mss-to-pmtu
+
+exit 0
+
+iptables-delete-all
+iptables -A POSTROUTING -t nat -j MASQUERADE
+iptables -P FORWARD ACCEPT
+
+iptables -A FORWARD -i ppp+ -j ACCEPT
+iptables -A FORWARD -i ppp+ -o eth0 -m state --state RELATED,ESTABLISHED -j ACCEPT
+iptables -A FORWARD -i eth0 -o ppp+ -m state --state RELATED,ESTABLISHED -j ACCEPT
+
+iptables -P OUTPUT ACCEPT
+iptables -A OUTPUT -o ppp+ -j ACCEPT
+
+
+iptables -t nat -A POSTROUTING -s 10.0.0.0/24 -o eth0 -j MASQUERADE
+
+
+sudo iptables -A FORWARD -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+
+sudo iptables -A FORWARD -o eth0 -i ppp0 -s 10.0.0.0/24 -m conntrack --ctstate NEW -j ACCEPT
+
+iptables -o p2p1 -A FORWARD -p tcp --tcp-flags SYN,RST SYN -m tcpmss --mss 800:1536 -j TCPMSS --clamp-mss-to-pmtu
+
